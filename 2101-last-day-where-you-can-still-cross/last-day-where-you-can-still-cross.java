@@ -1,67 +1,72 @@
-import java.util.*;
-
 class Solution {
 
-    int[][] dirs = {{0,1},{1,0},{-1,0},{0,-1}};
+    int[] parent, rank;
+    int rows, cols;
+    int top, bottom;
 
     public int latestDayToCross(int row, int col, int[][] cells) {
-        int low = 0, high = cells.length - 1;
-        int ans = 0;
+        rows = row;
+        cols = col;
 
-        // Binary search on days
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
+        int n = rows * cols;
+        parent = new int[n + 2];
+        rank = new int[n + 2];
 
-            if (walkPossible(row, col, cells, mid + 1)) {
-                ans = mid + 1;       // crossing possible
-                low = mid + 1;
-            } else {
-                high = mid - 1;     // crossing not possible
-            }
-        }
-        return ans;
-    }
+        top = n;
+        bottom = n + 1;
 
-    boolean walkPossible(int rows, int cols, int[][] cells, int day) {
-        int[][] grid = new int[rows][cols];
+        for (int i = 0; i < parent.length; i++)
+            parent[i] = i;
 
-        // Mark flooded cells
-        for (int i = 0; i < day; i++) {
-            int r = cells[i][0] - 1;  // convert to 0-index
-            int c = cells[i][1] - 1;
-            grid[r][c] = 1;
-        }
+        boolean[][] land = new boolean[rows][cols];
 
-        Queue<int[]> queue = new LinkedList<>();
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
 
-        // Start BFS from top row
-        for (int j = 0; j < cols; j++) {
-            if (grid[0][j] == 0) {
-                queue.offer(new int[]{0, j});
-                grid[0][j] = -1; // mark visited
-            }
-        }
+        // Process days in reverse
+        for (int day = cells.length - 1; day >= 0; day--) {
+            int r = cells[day][0] - 1;
+            int c = cells[day][1] - 1;
+            land[r][c] = true;
 
-        // BFS traversal
-        while (!queue.isEmpty()) {
-            int[] cell = queue.poll();
-            int r = cell[0], c = cell[1];
+            int id = r * cols + c;
 
-            if (r == rows - 1) return true;
-
+            // connect neighbors
             for (int[] d : dirs) {
                 int nr = r + d[0];
                 int nc = c + d[1];
-
-                if (nr >= 0 && nr < rows &&
-                    nc >= 0 && nc < cols &&
-                    grid[nr][nc] == 0) {
-
-                    grid[nr][nc] = -1;
-                    queue.offer(new int[]{nr, nc});
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && land[nr][nc]) {
+                    union(id, nr * cols + nc);
                 }
             }
+
+            // connect to top or bottom virtual nodes
+            if (r == 0) union(id, top);
+            if (r == rows - 1) union(id, bottom);
+
+            // check connectivity
+            if (find(top) == find(bottom)) {
+                return day;
+            }
         }
-        return false;
+        return 0;
+    }
+
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    void union(int x, int y) {
+        int px = find(x);
+        int py = find(y);
+        if (px == py) return;
+
+        if (rank[px] < rank[py]) parent[px] = py;
+        else if (rank[px] > rank[py]) parent[py] = px;
+        else {
+            parent[py] = px;
+            rank[px]++;
+        }
     }
 }
