@@ -1,55 +1,50 @@
 class Solution {
     public List<Integer> findSubstring(String s, String[] words) {
-        List<Integer> result = new ArrayList<>();
-        
-        int n = s.length();
-        int numWords = words.length;
-        if (n == 0 || numWords == 0) return result;
-        
-        int wordLen = words[0].length();
-        int totalLen = numWords * wordLen;
-        if (n < totalLen) return result;
-        
-        Map<String, Integer> required = new HashMap<>();
-        for (String word : words) {
-            required.put(word, required.getOrDefault(word, 0) + 1);
+        List<Integer> ans = new ArrayList<>();
+
+        if (words.length == 0 || s.length() == 0) {
+            return ans;
         }
-      
-        for (int i = 0; i < wordLen; i++) {
-            int left = i;
-            int matched = 0;
-            Map<String, Integer> seen = new HashMap<>();
-         
-            for (int j = i; j <= n - wordLen; j += wordLen) {
-                String word = s.substring(j, j + wordLen);
-            
-                if (required.containsKey(word)) {
-                    seen.put(word, seen.getOrDefault(word, 0) + 1);
-        
-                    if (seen.get(word) <= required.get(word)) {
-                        matched++;
+
+        int wordSize = words[0].length();
+        int wordCount = words.length;
+        int N = s.length();
+
+        HashMap<String,Integer> originalCount = new HashMap<>();
+        for(int i = 0; i<words.length; i++){
+            originalCount.put(words[i], originalCount.getOrDefault(words[i],0)+1);
+        }
+
+        for(int offset = 0; offset<wordSize; offset++){
+            HashMap<String,Integer> currentCount = new HashMap<>();
+            int start = offset;
+            int count = 0;
+            for(int end = offset; end + wordSize <= N; end += wordSize){
+                String currWord = s.substring(end, end + wordSize);
+                if(originalCount.containsKey(currWord)){
+                    currentCount.put(currWord, currentCount.getOrDefault(currWord,0)+1);
+                    count++;
+
+                    while(currentCount.get(currWord)>originalCount.get(currWord)){
+                        String startWord = s.substring(start,start+wordSize);
+                        currentCount.put(startWord, currentCount.get(startWord)-1);
+                        start+=wordSize;
+                        count--;                        
+                    }
+
+                    if(count == wordCount){
+                        ans.add(start);
                     }
                     
-                    while (seen.get(word) > required.get(word)) {
-                        String leftWord = s.substring(left, left + wordLen);
-                        seen.put(leftWord, seen.get(leftWord) - 1);
-                        if (seen.get(leftWord) < required.get(leftWord)) {
-                            matched--;
-                        }
-                        left += wordLen;
-                    }
-                    
-                    if (matched == numWords) {
-                        result.add(left);
-                    }
-                } else {
-                    seen.clear();
-                    matched = 0;
-                    left = j + wordLen;
+                }
+                else{
+                    count = 0;
+                    start = end + wordSize;
+                    currentCount.clear();
                 }
             }
+
         }
-        
-        return result;
+        return ans;
     }
 }
