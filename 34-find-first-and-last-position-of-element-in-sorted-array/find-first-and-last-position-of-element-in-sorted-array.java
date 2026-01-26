@@ -1,15 +1,40 @@
 class Solution {
     public int[] searchRange(int[] nums, int target) {
-        int a = -1, b = -1;
+        int[] ans = {-1, -1};
 
-        for(int i=0;i<nums.length;i++){
-            if(nums[i]==target){
-                if(a==-1){
-                    a=i;
+        // First occurrence
+        ans[0] = binarySearch(nums, target, true);
+        // Last occurrence
+        ans[1] = binarySearch(nums, target, false);
+
+        return ans;
+    }
+
+    // Helper method to find first or last position
+    static int binarySearch(int[] nums, int target, boolean findFirst) {
+        int s = 0, e = nums.length - 1;
+        int ans = -1;
+
+        while (s <= e) {
+            int mid = s + (e - s) / 2;
+
+            if (target > nums[mid]) {
+                s = mid + 1;
+            } else if (target < nums[mid]) {
+                e = mid - 1;
+            } else {
+                ans = mid;
+                // If finding first, shrink end to search left side
+                if (findFirst) {
+                    e = mid - 1;
+                } 
+                // If finding last, move start to search right side
+                else {
+                    s = mid + 1;
                 }
-                b=i;
             }
         }
-        return new int[]{a,b};    
+
+        return ans;
     }
 }
