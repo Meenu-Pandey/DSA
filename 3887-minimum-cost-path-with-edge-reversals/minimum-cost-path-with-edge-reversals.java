@@ -1,56 +1,54 @@
 class Solution {
-    static class Edge {
-        int v;
-        int w;
-        Edge(int v, int w) {
-            this.v = v; this.w = w;
-        }
-    }
-
-    static class State {
-        int dist;
-        int node;
-        State(int dist, int node) { 
-            this.dist = dist; this.node = node; 
-        }
-    }
 
     public int minCost(int n, int[][] edges) {
-        List<List<Edge>> graph = new ArrayList<>();
-        for (int i = 0; i < n; i++) 
-            graph.add(new ArrayList<>());
-
-        for (int[] e : edges) {
-            int u = e[0], v = e[1], w = e[2];
-            graph.get(u).add(new Edge(v, w));
-            graph.get(v).add(new Edge(u, 2 * w));
+        List<int[]>[] g = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            g[i] = new ArrayList<>();
         }
 
-        int[] ans = new int[n];
-        Arrays.fill(ans, Integer.MAX_VALUE);
-        ans[0] = 0;
+        for (int[] e : edges) {
+            int x = e[0];
+            int y = e[1];
+            int w = e[2];
+            g[x].add(new int[] { y, w });
+            g[y].add(new int[] { x, 2 * w });
+        }
 
-        PriorityQueue<State> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.dist, b.dist));
-        pq.add(new State(0, 0));
+        int[] d = new int[n];
+        boolean[] visited = new boolean[n];
+        Arrays.fill(d, Integer.MAX_VALUE);
+        d[0] = 0;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>(
+            Comparator.comparingInt(a -> a[0])
+        );
+        pq.offer(new int[] { 0, 0 }); 
 
         while (!pq.isEmpty()) {
-            State cur = pq.poll();
-            int weight = cur.dist;
-            int node = cur.node;
+            int[] current = pq.poll();
+            int dist = current[0];
+            int x = current[1];
 
-            if (weight > ans[node]) 
+            if (x == n - 1) {
+                return dist;
+            }
+
+            if (visited[x]) {
                 continue;
+            }
+            visited[x] = true;
 
-            for (Edge e : graph.get(node)) {
-                int nd = e.v;
-                int wt = e.w;
-                if (ans[node] != Integer.MAX_VALUE && wt + weight < ans[nd]) {
-                    ans[nd] = wt + weight;
-                    pq.add(new State(ans[nd], nd));
+            for (int[] neighbor : g[x]) {
+                int y = neighbor[0];
+                int w = neighbor[1];
+
+                if (dist + w < d[y]) {
+                    d[y] = dist + w;
+                    pq.offer(new int[] { d[y], y });
                 }
             }
         }
 
-        return ans[n - 1] == Integer.MAX_VALUE ? -1 : ans[n - 1];
+        return -1;
     }
 }
