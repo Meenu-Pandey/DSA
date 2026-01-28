@@ -1,20 +1,21 @@
 class Solution {
     public boolean isMatch(String s, String p) {
-        Boolean[][]arr=new Boolean[s.length()][p.length()];
-        return helper(s,p,arr,s.length()-1,p.length()-1);
-    }
-    public static boolean helper(String text1,String text2, Boolean[][]dp,int index1,int index2){
-        if(index1<0&&index2<0)return true;
-        if(index1>=0&&index2<0)return false;
-        if(index1<0&&index2>=0){
-            for(int i=index2;i>=0;i--){
-                if(text2.charAt(i)!='*')return false;
+        int n = s.length(), m = p.length();
+        boolean[][] dp = new boolean[n+1][m+1];
+        dp[0][0] = true;
+
+        for (int j = 1; j <= m; j++)
+            if (p.charAt(j-1) == '*') dp[0][j] = dp[0][j-1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                char pc = p.charAt(j-1);
+                if (pc == s.charAt(i-1) || pc == '?')
+                    dp[i][j] = dp[i-1][j-1];
+                else if (pc == '*')
+                    dp[i][j] = dp[i][j-1] || dp[i-1][j];
             }
-            return true;
         }
-        if(dp[index1][index2]!=null)return dp[index1][index2];
-        if(text1.charAt(index1)==text2.charAt(index2)||text2.charAt(index2)=='?')return dp[index1][index2]=helper(text1,text2,dp,index1-1,index2-1);
-        if(text2.charAt(index2)=='*')return dp[index1][index2]=helper(text1,text2,dp,index1-1,index2)||helper(text1,text2,dp,index1,index2-1);
-        return false;
+        return dp[n][m];
     }
 }
