@@ -1,47 +1,26 @@
 class Solution {
     public int[][] insert(int[][] intervals, int[] newInterval) {
-        List<int[]> list = new ArrayList<>();
-        int merged = 0;
-        int end = 0;
+        List<int[]> res = new ArrayList<>();
+        int n = intervals.length, i = 0;
 
-        if(intervals.length ==0)
-        list.add(newInterval);
+        // Step 1: Add the chill guys (no overlap)
+        while (i < n && newInterval[0] > intervals[i][1])
+            res.add(intervals[i++]);
 
-        for(int i = 0; i < intervals.length ; i++){
-        if(merged == 0){
-            if(newInterval[1] < intervals[i][0]){
-                list.add(newInterval) ;
-                merged = 2;
-            }
-
-            if(intervals[i][1] >= newInterval[0] && merged != 2){
-                list.add(new int[]{Math.min(intervals[i][0],newInterval[0]), Math.max(intervals[i][1],newInterval[1])});
-                merged = 1;
-                end = Math.max(intervals[i][1],newInterval[1]);
-            }
-            else{
-                list.add(intervals[i]);
-            }
-        }
-        else{
-            if(end >= intervals[i][0]) {
-             int last[] =  list.remove(list.size() -1);
-              if(end < intervals[i][1])
-                  end = intervals[i][1] ;
-              list.add(new int[]{last[0],end}) ;
-          }
-         else{
-             list.add(intervals[i]);
-             end = intervals[i][1];
-         }
-        }
+        // Step 2: Merge with whoever crashes the party
+        while (i < n && newInterval[1] >= intervals[i][0]) {
+            newInterval[0] = Math.min(newInterval[0], intervals[i][0]);
+            newInterval[1] = Math.max(newInterval[1], intervals[i][1]);
+            i++;
         }
 
-        if(merged == 0 && intervals.length > 0 && newInterval[0] > intervals[intervals.length -1][1]){
-            list.add(newInterval);
-        }
+        // Step 3: Add the final merged interval
+        res.add(newInterval);
 
-        int arr[][] = list.toArray(new int[list.size()][]) ;
-        return arr;
+        // Step 4: Add the latecomers
+        while (i < n)
+            res.add(intervals[i++]);
+
+        return res.toArray(new int[res.size()][]);
     }
 }
