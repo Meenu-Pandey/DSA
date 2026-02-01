@@ -1,20 +1,21 @@
 class Solution {
     public String getPermutation(int n, int k) {
-        List<Integer> nums = new ArrayList<>();
-        int[] fact = new int[n + 1];
-        fact[0] = 1;
-        for (int i = 1; i <= n; i++) {
-            nums.add(i);
-            fact[i] = fact[i - 1] * i;
-        }
-        k--; 
-        StringBuilder sb = new StringBuilder();
-        for (int i = n; i >= 1; i--) {
-            int idx = k / fact[i - 1];
-            sb.append(nums.get(idx));
-            nums.remove(idx);
-            k %= fact[i - 1];
-        }
-        return sb.toString();
+      List<Integer> list=new ArrayList<>();
+      int fact=1;
+      for(int i=1;i<=n;i++){
+            fact*=i;
+            list.add(i);
+      }  
+      fact/=n;
+      k-=1;
+      StringBuilder sb=new StringBuilder();
+      while(true){
+        sb.append(list.get(k / fact));
+        list.remove(k / fact);
+        if(list.size() == 0)break;
+        k%=fact;
+        fact/=list.size();
+      }
+      return String.valueOf(sb);
     }
 }
