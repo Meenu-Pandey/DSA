@@ -1,20 +1,20 @@
 class Solution {
+    List<List<Integer>> out = new ArrayList<>();
+    List<Integer> temp = new ArrayList<>();
     public List<List<Integer>> combine(int n, int k) {
-        List<List<Integer>> ans = new ArrayList<>();
-        solve(1, n, k, ans, new ArrayList<>());
-        return ans;
+        helper(1, n, k);
+        return out;
     }
-
-    public void solve(int start, int n, int k, List<List<Integer>> ans, List<Integer> temp) {
-        if (k == 0) {
-            ans.add(new ArrayList<>(temp));
+    private void helper(int start, int n, int k){
+        if(temp.size()==k){
+            out.add(new ArrayList<>(temp));
             return;
         }
-
-        for (int i = start; i <= n; i++) {
-            temp.add(i);              // take
-            solve(i + 1, n, k - 1, ans, temp); // explore
-            temp.remove(temp.size() - 1);      // not-take (backtrack)
+        if((n-start+1)<(k-temp.size()))return;
+        for(int i=start;i<=n;i++){
+            temp.add(i);
+            helper(i+1, n, k);
+            temp.removeLast();
         }
     }
 }
