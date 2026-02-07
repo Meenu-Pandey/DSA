@@ -1,42 +1,58 @@
-public class Solution {
-    public boolean exist(char[][] board, String word) {
-        int m = board.length;
-        int n = board[0].length;
+class Solution {
+    private static final int ASCII_SIZE = 128;
+    private static final int XOR_MASK = 256;
+    private static final int[][] DIRECTIONS = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
 
-        boolean[][] visited = new boolean[m][n];
-        boolean result = false;
-        
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (board[i][j] == word.charAt(0)) {
-                    result = backtrack(board, word, visited, i, j, 0);
-                    if (result) return true;
+    public boolean exist(char[][] board, String word) {
+        final int row = board.length;
+        final int col = board[0].length;
+
+        if (row * col < word.length()) return false;
+
+        int[] freq = new int[ASCII_SIZE];
+        for (char[] r : board) {
+            for (char c : r) {
+                freq[c]++;
+            }
+        }
+        for (char c : word.toCharArray()) {
+            if (--freq[c] < 0) {
+                return false;
+            }
+        }
+
+        // Reverse the word to search from the less common end
+        if (freq[word.charAt(0)] > freq[word.charAt(word.length() - 1)]) {
+            word = new StringBuilder(word).reverse().toString();
+        }
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (board[i][j] == word.charAt(0) && dfs(board, word, i, j, 0)) {
+                    return true;
                 }
             }
         }
-        
         return false;
     }
-    
-    private boolean backtrack(char[][] board, String word, boolean[][] visited, int i, int j, int index) {
-        if (index == word.length()) {
-            return true;
-        }
-        
-        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || visited[i][j] || board[i][j] != word.charAt(index)) {
+
+    private boolean dfs(char[][] board, String word, int row, int col, int index) {
+        if (index == word.length()) return true;
+        if (row < 0 || row >= board.length || col < 0 || col >= board[0].length) {
             return false;
         }
-        
-        visited[i][j] = true;
-        
-        if (backtrack(board, word, visited, i + 1, j, index + 1) ||
-            backtrack(board, word, visited, i - 1, j, index + 1) ||
-            backtrack(board, word, visited, i, j + 1, index + 1) ||
-            backtrack(board, word, visited, i, j - 1, index + 1)) {
-            return true;
+        if (word.charAt(index) != board[row][col]) {
+            return false;
         }
-        
-        visited[i][j] = false;
+        board[row][col] ^= XOR_MASK;
+
+        for(int[] direction: DIRECTIONS) {
+            if (dfs(board, word, row + direction[0], col + direction[1], index + 1)) {
+                board[row][col] ^= XOR_MASK;
+                return true;
+            }
+        }
+        board[row][col] ^= XOR_MASK;
         return false;
     }
 }
