@@ -1,0 +1,38 @@
+class Solution {
+    public boolean bs(int[] nums,int l, int r, int target){
+        if(l > r){
+            return false;
+        }
+        int mid = (l+r)/2;
+        if(nums[mid] == target){
+            return true;
+        }
+        // Case 1: The right half is definitely sorted
+        if(nums[mid] < nums[l]){
+            if(target <= nums[r] && target >= nums[mid]){
+                return bs(nums,mid+1,r,target);
+            }
+            else{
+                return bs(nums,l,mid-1,target);
+            }
+        }
+        // Case 2: The left half is definitely sorted
+        else if(nums[mid] > nums[r]){
+            if(target >= nums[l] && target <= nums[mid]){
+                return bs(nums,l,mid-1,target);
+            }
+            else{
+                return bs(nums,mid+1,r,target);
+            }
+        }
+        // Case 3: Ambiguity due to duplicates (nums[l] == nums[mid] == nums[r])
+        else{
+            boolean left = bs(nums,l,mid-1,target);
+            boolean right = bs(nums,mid+1,r,target);
+            return left || right;
+        }
+    }
+    public boolean search(int[] nums, int target) {
+        return bs(nums,0,nums.length-1,target);
+    }
+}
