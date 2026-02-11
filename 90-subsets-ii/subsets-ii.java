@@ -1,25 +1,20 @@
 class Solution {
-    public List<List<Integer>> subsetsWithDup(int[] nums) {
-  // sort
-  Arrays.sort(nums);
-  
-  List<List<Integer>> result = new ArrayList<>();
-  result.add(new ArrayList<>());  // empty set
-  
-  int cachedSize = 0, startIdx = 0;
-  for (int i = 0; i < nums.length; ++i) {
-    List<List<Integer>> newResult = new ArrayList<>();  // used for new lists
-    // set startIdx first before we update cachedSize
-    startIdx = (i > 0 && nums[i - 1] == nums[i]) ? cachedSize : 0; // if duplicate occurs
-    cachedSize = result.size(); // cache the size for startIdx in the next round
-    for (int j = startIdx; j < result.size(); ++j) {
-      List<Integer> L = result.get(j);
-      L = new ArrayList<>(L);  // copy
-      L.add(nums[i]);
-      newResult.add(L);
+    List<List<Integer>>res=new ArrayList<>();
+    public void backtrack(int[]nums,int idx,ArrayList temp){
+        if(idx==nums.length){
+            res.add(new ArrayList<>(temp));
+            return;
+        }
+        temp.add(nums[idx]);
+        backtrack(nums,idx+1,temp);
+        while(idx<nums.length-1&&nums[idx]==nums[idx+1]) idx++;
+        temp.remove(temp.size()-1);
+        backtrack(nums,idx+1,temp);
     }
-    result.addAll(newResult);  // concatenate
-  }
-  return result;
-}
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        ArrayList<Integer> temp=new ArrayList<>();
+        backtrack(nums,0,temp);
+        return res;
+    }
 }
