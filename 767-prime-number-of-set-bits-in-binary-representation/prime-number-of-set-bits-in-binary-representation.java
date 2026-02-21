@@ -1,26 +1,19 @@
 class Solution {
-    public int countSetBits(int n){
-        int count = 0;
-        while(n>0){
-            int rem = n%2;
-            count += rem;
-            n /= 2;
+    private int countBits(int n){
+        int cnt = 0;
+        while(n != 0){
+            n = n & (n-1);
+            cnt++;
         }
-        return count;
+        return cnt;
     }
-    public boolean isPrime(int n){
-        if(n<=1) return false;
-        for(int i=2; i<=Math.sqrt(n); i++){
-            if(n%i == 0) return false;
-        }
-        return true;
-    }
+
     public int countPrimeSetBits(int left, int right) {
-        int count = 0;
-        for(int i=left; i<=right; i++){
-            int num = countSetBits(i);
-            if(isPrime(num)) count++;
+        Set<Integer> prime = new HashSet<>(Arrays.asList(2,3,5,7,11,13,17,19));
+        int ans = 0;
+        for(int i = left; i <= right; i++){
+            if(prime.contains(countBits(i))) ans++;
         }
-        return count;
+        return ans;
     }
 }
