@@ -1,30 +1,49 @@
 class Solution {
+    private int mod = (int) 1e9 + 7;
+    private int[] comp(int i, int limit) {
+        int[] ways = new int[i + 1];
+        int[] prev = new int[i + 1];
+        prev[0] = 1;
+
+        for (int k = 1; k <= i; k++) {
+            int[] curr = new int[i + 1];
+            long pref = 0; 
+            for (int j = 1; j <= i; j++) {
+                pref = (pref + prev[j - 1]) % mod;
+                if (j - limit - 1 >= 0) {
+                    pref = (pref - prev[j - limit - 1] + mod) % mod;
+                }
+                curr[j] = (int) pref;
+            }
+            ways[k] = curr[i];
+            prev = curr;
+        }
+        return ways;
+    }
 
     public int numberOfStableArrays(int zero, int one, int limit) {
+        int[] Zero = comp(zero, limit);
+        int[] One = comp(one, limit);
+        long ans = 0;
 
-        int MOD = 1_000_000_007;
-
-        long[][][] dp = new long[zero+1][one+1][2];
-
-        for(int i=1;i<=Math.min(zero,limit);i++)
-            dp[i][0][0]=1;
-
-        for(int j=1;j<=Math.min(one,limit);j++)
-            dp[0][j][1]=1;
-
-        for(int i=1;i<=zero;i++)
-        for(int j=1;j<=one;j++){
-
-            long over0 = (i-limit>=1)?dp[i-limit-1][j][1]:0;
-            long over1 = (j-limit>=1)?dp[i][j-limit-1][0]:0;
-
-            dp[i][j][0] =
-            (dp[i-1][j][0]+dp[i-1][j][1]-over0+MOD)%MOD;
-
-            dp[i][j][1] =
-            (dp[i][j-1][0]+dp[i][j-1][1]-over1+MOD)%MOD;
+        for (int a = 1; a <= zero; a++) {
+            if (a <= one) {
+                ans = (ans + (long) Zero[a] * One[a]) % mod; 
+            }
+            if (a - 1 >= 1 && a - 1 <= one) {
+                ans = (ans + (long) Zero[a] * One[a - 1]) % mod; 
+            }
         }
 
-        return (int)((dp[zero][one][0]+dp[zero][one][1])%MOD);
+        for (int a = 1; a <= zero; a++) {
+            if (a <= one) {
+                ans = (ans + (long) Zero[a] * One[a]) % mod; 
+            }
+            if (a + 1 <= one) {
+                ans = (ans + (long) Zero[a] * One[a + 1]) % mod;
+            }
+        }
+
+        return (int) (ans % mod);
     }
 }
