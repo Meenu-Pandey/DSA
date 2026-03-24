@@ -1,49 +1,26 @@
 class Solution {
+    int MOD = 12345;
     public int[][] constructProductMatrix(int[][] grid) {
-        final int MOD = 12345;
-        int n = grid.length, m = grid[0].length;
-
-        // Flatten grid
-        int N = n * m;
-        int[] arr = new int[N];
-        int idx = 0;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                arr[idx++] = grid[i][j] % MOD;
-            }
-        }
-
-        // Prefix and suffix arrays
-        int[] prefix = new int[N];
-        int[] suffix = new int[N];
-
-        for (int i = 0; i < N; i++) {
-            prefix[i] = 1;
-            suffix[i] = 1;
-        }
-
-        // Build prefix
-        for (int i = 1; i < N; i++) {
-            prefix[i] = (int)((1L * prefix[i - 1] * arr[i - 1]) % MOD);
-        }
-
-        // Build suffix
-        for (int i = N - 2; i >= 0; i--) {
-            suffix[i] = (int)((1L * suffix[i + 1] * arr[i + 1]) % MOD);
-        }
-
-        // Build result
+        int n = grid.length, m = grid[0].length, total = n*m;
         int[][] res = new int[n][m];
-        idx = 0;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                res[i][j] = (int)((1L * prefix[idx] * suffix[idx]) % MOD);
-                idx++;
+        long[] pref = new long[total], suf = new long[total];
+        for(int i=0;i<n;i++)
+            for(int j=0;j<m;j++){
+                int idx = i*m+j;
+                pref[idx] = idx>0 ? (pref[idx-1]*grid[i][j])%MOD : grid[i][j]%MOD;
             }
-        }
-
+        for(int i=n-1;i>=0;i--)
+            for(int j=m-1;j>=0;j--){
+                int idx = i*m+j;
+                suf[idx] = idx<total-1 ? (suf[idx+1]*grid[i][j])%MOD : grid[i][j]%MOD;
+            }
+        for(int i=0;i<n;i++)
+            for(int j=0;j<m;j++){
+                int idx = i*m+j;
+                long l = idx>0 ? pref[idx-1] : 1;
+                long r = idx<total-1 ? suf[idx+1] : 1;
+                res[i][j] = (int)((l*r)%MOD);
+            }
         return res;
     }
 }
